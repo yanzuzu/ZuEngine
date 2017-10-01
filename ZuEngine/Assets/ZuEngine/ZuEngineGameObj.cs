@@ -5,17 +5,16 @@ using ZuEngine.GameState;
 
 namespace ZuEngine
 {
-	public class ZuEngine : MonoBehaviour 
+	public class ZuEngineGameObj : MonoBehaviour 
 	{
-		private GameStateManager m_gameStateMgr;
+		protected GameStateManager m_gameStateMgr;
 
-		void Start () 
+		public virtual void Start () 
 		{
 			m_gameStateMgr = new GameStateManager ();
-			m_gameStateMgr.ChangeState (new InitMainMenuState ());
 		}
 
-		void Update () 
+		public virtual void Update () 
 		{
 			m_gameStateMgr.Update (Time.deltaTime);
 		}

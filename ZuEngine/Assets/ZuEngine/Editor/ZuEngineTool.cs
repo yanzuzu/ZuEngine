@@ -18,7 +18,7 @@ namespace ZuEngine.Tool
 				return;
 			}
 			GameObject newEngineObj = new GameObject ();
-			newEngineObj.AddComponent<ZuEngine> ();
+			newEngineObj.AddComponent<ZuEngineGameObj> ();
 			newEngineObj.name = ZU_ENGINE_OBJ_NAME;
 			ZuLog.Log ("Create ZuEngine obj complete!");
 		}
