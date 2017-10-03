@@ -9,7 +9,7 @@ public class GameEngine : ZuEngineGameObj
 	// Use this for initialization
 	void Start () {
 		base.Start ();
-		m_gameStateMgr.ChangeState (new InitMainMenuState ());
+		m_gameStateMgr.ChangeState (new MainGameState ());
 	}
 	
 	// Update is called once per frame
