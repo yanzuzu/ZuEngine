@@ -40,7 +40,7 @@ public class VehicleCamera : MonoBehaviour, ICamera
 
 		Vector3 targetPos =  m_target.GetPosition ();
 
-		Vector3 camPos = targetPos - m_target.GetForward () * m_dist;
+		Vector3 camPos = targetPos - Vector3.forward * m_dist;
 		camPos.y = m_height;
 		m_camTrans.position = camPos;
 		m_camTrans.LookAt (targetPos);
