@@ -12,8 +12,6 @@ public class GameEngine : ZuEngineGameObj
 	void Start () {
 		base.Start ();
 		m_gameStateMgr.ChangeState (new MainGameState ());
-
-		EventService.Instance.Test ();
 	}
 	
 	// Update is called once per frame

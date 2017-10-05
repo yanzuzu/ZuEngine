@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.GameState;
+using ZuEngine.Service;
 
 namespace ZuEngine
 {
@@ -17,6 +18,7 @@ namespace ZuEngine
 		public virtual void Update () 
 		{
 			m_gameStateMgr.Update (Time.deltaTime);
+			EventService.Instance.SendEvent (EventIDs.ON_UPDATE, Time.deltaTime);
 		}
 	}
 }
