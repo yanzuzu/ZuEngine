@@ -9,6 +9,8 @@ public class MainGameState : BaseGameState {
 	private VehicleCamera m_camera;
 	private Vehicle m_vehicle;
 
+	private JoyStickController m_controllerUI;
+
 	#region IGameState implementation
 	public override void OnInit(GameStateManager stateMgr)
 	{
@@ -29,6 +31,8 @@ public class MainGameState : BaseGameState {
 		m_vehicle = vehicle.GetComponent<Vehicle> ();
 
 		m_camera.SetTarget (m_vehicle);
+
+		m_controllerUI = new JoyStickController ();
 	}
 	public override void OnUpdate (float deltaTime)
 	{

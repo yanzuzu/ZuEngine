@@ -5,49 +5,62 @@ using ZuEngine.Utility;
 
 namespace ZuEngine.Service
 {
+	public class EventResult
+	{
+		public object ResultObj;
+		public bool EatReturn = false;
+
+		public EventResult(bool eatReturn, object resultObj = null)
+		{
+			EatReturn = eatReturn;
+			ResultObj = resultObj;
+		}
+	}
+
 	public class EventService : BaseService<EventService>
 	{
-		public delegate void eventCallBack(object userData);
-
-		public struct ListenEventData
-		{
-			public eventCallBack CB;
-			public object UserData;
-		}
-
-		private List<ListenEventData>[] m_eventCbs;
+		public delegate EventResult eventCallBack(object userData);
+		
+		private List<eventCallBack>[] m_eventCbs;
 
 		public EventService()
 		{
-			m_eventCbs = new List<ListenEventData>[System.Enum.GetNames (typeof(EventIDs)).Length];
+			m_eventCbs = new List<eventCallBack>[System.Enum.GetNames (typeof(EventIDs)).Length];
 		}
 
-		public void SendEvent(EventIDs eventId, object userData)
+		public object SendEvent(EventIDs eventId, object userData)
 		{
 			int eventIdx = (int)eventId;
 			if ( m_eventCbs [eventIdx] == null ) 
 			{
-				return;
+				return null;
 			}
 
+			object returnObj = null;
 			for (int i = 0; i < m_eventCbs [eventIdx].Count; i++) 
 			{
-				ListenEventData data = m_eventCbs [eventIdx] [i];
-				data.CB (data.UserData);
+				eventCallBack eventCb = m_eventCbs [eventIdx] [i];
+				EventResult result = eventCb (userData);
+				if ( result != null )
+				{
+					returnObj = result.ResultObj;
+					if ( result.EatReturn )
+					{
+						break;
+					}
+				}
 			}
+			return returnObj;
 		}
 
-		public void RegisterEvent(EventIDs eventId, eventCallBack cb , object userData = null)
+		public void RegisterEvent(EventIDs eventId, eventCallBack cb)
 		{
 			int eventIdx = (int)eventId;
 			if ( m_eventCbs [eventIdx] == null ) 
 			{
-				m_eventCbs [eventIdx] = new List<ListenEventData> ();
+				m_eventCbs [eventIdx] = new List<eventCallBack> ();
 			}
-			ListenEventData data = new ListenEventData ();
-			data.CB = cb;
-			data.UserData = userData;
-			m_eventCbs [eventIdx].Add (data);
+			m_eventCbs [eventIdx].Add (cb);
 		}
 	}
 }
