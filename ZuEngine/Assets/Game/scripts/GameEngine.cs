@@ -9,13 +9,13 @@ public class GameEngine : ZuEngineGameObj
 {
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start ();
 		m_gameStateMgr.ChangeState (new MainGameState ());
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update ();	
 	}
 }

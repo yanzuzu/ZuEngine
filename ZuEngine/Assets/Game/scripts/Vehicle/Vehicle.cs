@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZuEngine.Service;
+using ZuEngine.Utility;
 
 [SerializeField]
 public enum DriveType
@@ -49,11 +51,22 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	private WheelCollider [] m_wheelColliders;
 	private Rigidbody m_rigidbody;
 
+	private float m_turnAxisX = 0f;
+	private float m_gas = 0f;
+	private float m_handBrake = 0f;
+
 	void Start () 
 	{
 		m_trans = gameObject.transform;
 		m_wheelColliders = GetComponentsInChildren<WheelCollider> ();
 		m_rigidbody = GetComponent<Rigidbody> ();
+
+		for (int i = 0; i < m_wheelColliders.Length; i++)
+		{
+			m_wheelColliders[i].ConfigureVehicleSubsteps(criticalSpeed, stepsBelow, stepsAbove);
+		}
+
+		RegisterEvent ();
 	}
 		
 	void Update () {
@@ -64,6 +77,39 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	{
 		OnPhysicUpdate (Time.fixedDeltaTime);
 	}
+
+	private void RegisterEvent()
+	{
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_LEFT_ENTER, OnLeftBtnEnter);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_RIGHT_ENTER, OnRightBtnEnter);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_GAS_ENTER, OnGasBtnEnter);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BACK_ENTER, OnBackBtnEnter);
+	}
+
+	EventResult OnLeftBtnEnter(object eventData)
+	{
+		m_turnAxisX = (bool)eventData ? -1f : 0f;
+		return null;
+	}
+
+	EventResult OnRightBtnEnter(object eventData)
+	{
+		m_turnAxisX = (bool)eventData ? 1f : 0f;
+		return null;
+	}
+
+	EventResult OnGasBtnEnter(object eventData)
+	{
+		m_gas = (bool)eventData ? 1f : 0f;
+		return null;
+	}
+
+	EventResult OnBackBtnEnter(object eventData)
+	{
+		m_gas = (bool)eventData ? -1f : 0f;
+		return null;
+	}
+
 
 	#region IVehicle implementation
 
@@ -100,12 +146,19 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private void UpdateController()
 	{
-		m_wheelColliders[0].ConfigureVehicleSubsteps(criticalSpeed, stepsBelow, stepsAbove);
+		#if UNITY_EDITOR
+		m_turnAxisX = Input.GetAxis("Horizontal");
+		m_gas = Input.GetAxis("Vertical");
+		m_handBrake = Input.GetKey(KeyCode.X) ? brakeTorque : 0;
+		#endif
 
-		float angle = maxAngle * Input.GetAxis("Horizontal");
-		float torque = maxTorque * Input.GetAxis("Vertical");
+		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
+	}
 
-		float handBrake = Input.GetKey(KeyCode.X) ? brakeTorque : 0;
+	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
+	{
+		float angle = maxAngle * axisX;
+		float torque = maxTorque * gas;
 
 		foreach (WheelCollider wheel in m_wheelColliders)
 		{
@@ -127,7 +180,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			{
 				wheel.motorTorque = torque;
 			}
-				
+
 			Quaternion q;
 			Vector3 p;
 			wheel.GetWorldPose (out p, out q);
