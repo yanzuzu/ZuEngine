@@ -14,7 +14,6 @@ public enum DriveType
 
 public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 {
-
 	[Range(0.1f, 20f)]
 	[Tooltip("Natural frequency of the suspension springs. Describes bounciness of the suspension.")]
 	public float naturalFrequency = 10;
@@ -47,6 +46,10 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	[Tooltip("The vehicle's drive type: rear-wheels drive, front-wheels drive or all-wheels drive.")]
 	public DriveType driveType;
 
+	[Header("Physic")]
+	[SerializeField]
+	private float m_jumpForce = 400f;
+
 	private Transform m_trans;
 	private WheelCollider [] m_wheelColliders;
 	private Rigidbody m_rigidbody;
@@ -54,6 +57,10 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	private float m_turnAxisX = 0f;
 	private float m_gas = 0f;
 	private float m_handBrake = 0f;
+
+	private bool m_isOnGround = true;
+	private bool m_isJump = false;
+	private bool m_isJumping = false;
 
 	void Start () 
 	{
@@ -115,7 +122,21 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	public void OnPhysicUpdate (float deltaTime)
 	{
+		bool isOnGround = IsOnGround ();
+
+		if ( !m_isOnGround )
+		{
+			if ( m_isJumping && isOnGround)
+			{
+				m_isJumping = false;
+			}
+		}
+		
 		UpdateSuspension ();
+		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
+		Jump();
+
+		m_isOnGround = isOnGround;
 	}
 
 	#endregion
@@ -150,9 +171,17 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		m_turnAxisX = Input.GetAxis("Horizontal");
 		m_gas = Input.GetAxis("Vertical");
 		m_handBrake = Input.GetKey(KeyCode.X) ? brakeTorque : 0;
+
+		if(UnityEngine.Input.GetKeyDown(KeyCode.Space))
+		{
+			m_isJump = true;
+		}else
+		{
+			m_isJump = false;
+		}
 		#endif
 
-		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
+
 	}
 
 	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
@@ -192,6 +221,32 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 		}
 	}
+
+	private void Jump()
+	{
+		if ( m_isJumping )
+		{
+			return;
+		}
+		if ( m_isJump )
+		{
+			m_isJumping = true;
+			m_rigidbody.AddForce (m_rigidbody.mass * m_jumpForce * Vector3.up);
+		}
+	}
+
+	private bool IsOnGround()
+	{
+		foreach (WheelCollider wheel in m_wheelColliders)
+		{
+			if ( !wheel.isGrounded )
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 	#region ICameraTarget implementation
 	public Vector3 GetPosition ()
