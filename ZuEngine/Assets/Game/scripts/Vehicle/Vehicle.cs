@@ -14,6 +14,8 @@ public enum DriveType
 
 public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 {
+	private const float BICYCLE_JUMP_INTERVAL = 0.8f;
+
 	[Range(0.1f, 20f)]
 	[Tooltip("Natural frequency of the suspension springs. Describes bounciness of the suspension.")]
 	public float naturalFrequency = 10;
@@ -49,6 +51,12 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	[Header("Physic")]
 	[SerializeField]
 	private float m_jumpForce = 400f;
+	[SerializeField]
+	private float m_bicycleJumpForce = 20f;
+	[SerializeField]
+	private float m_bicycleJumpImpulse = 20f;
+	[SerializeField]
+	private float m_boostForce = 5f;
 
 	private Transform m_trans;
 	private WheelCollider [] m_wheelColliders;
@@ -57,10 +65,13 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	private float m_turnAxisX = 0f;
 	private float m_gas = 0f;
 	private float m_handBrake = 0f;
+	private bool m_isBoost = false;
 
 	private bool m_isOnGround = true;
 	private bool m_isJump = false;
 	private bool m_isJumping = false;
+
+	private float m_lastJumpTime = 0f;
 
 	void Start () 
 	{
@@ -72,12 +83,22 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		{
 			m_wheelColliders[i].ConfigureVehicleSubsteps(criticalSpeed, stepsBelow, stepsAbove);
 		}
-
+			
 		RegisterEvent ();
 	}
 		
 	void Update () {
 		UpdateController ();
+
+		#if UNITY_EDITOR
+		if( Input.GetKeyDown(KeyCode.R))
+		{
+			m_trans.position = new Vector3(100.0f , 0.2f, 100.0f );
+			m_trans.localRotation = Quaternion.Euler(Vector3.zero);
+			m_rigidbody.velocity = Vector3.zero;
+			m_rigidbody.angularVelocity = Vector3.zero;
+		}
+		#endif
 	}
 
 	void FixedUpdate()
@@ -135,6 +156,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		UpdateSuspension ();
 		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
 		Jump();
+		Boost();
 
 		m_isOnGround = isOnGround;
 	}
@@ -179,6 +201,8 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		{
 			m_isJump = false;
 		}
+
+		m_isBoost = Input.GetKey(KeyCode.B);
 		#endif
 
 
@@ -222,16 +246,55 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		}
 	}
 
+	private void Boost()
+	{
+		if ( !m_isBoost )
+		{
+			return;
+		}
+		m_rigidbody.AddForce (m_rigidbody.mass * m_boostForce * m_trans.forward, ForceMode.Impulse);
+	}
+
 	private void Jump()
 	{
 		if ( m_isJumping )
 		{
+			BicycleJump ();
 			return;
 		}
+
 		if ( m_isJump )
 		{
+			m_lastJumpTime = Time.time;
 			m_isJumping = true;
 			m_rigidbody.AddForce (m_rigidbody.mass * m_jumpForce * Vector3.up);
+			m_isJump = false;
+		}
+	}
+
+	private void BicycleJump()
+	{
+		if ( !m_isJump )
+		{
+			return;
+		}
+
+		float diffTime = Time.time - m_lastJumpTime;	
+		if ( diffTime >= BICYCLE_JUMP_INTERVAL )
+		{
+			return;
+		}
+
+		if ( m_turnAxisX == 0 )
+		{
+			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_bicycleJumpForce * Vector3.right , ForceMode.Impulse);
+			m_rigidbody.AddForce (m_rigidbody.mass * m_bicycleJumpImpulse * m_trans.forward , ForceMode.Impulse);
+		}
+		else
+		{
+			float delta = m_turnAxisX > 0 ? -1 : 1;
+			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_bicycleJumpForce * Vector3.forward , ForceMode.Impulse);
+			m_rigidbody.AddForce ( delta * m_rigidbody.mass * m_bicycleJumpImpulse * m_trans.right, ForceMode.Impulse);
 		}
 	}
 
