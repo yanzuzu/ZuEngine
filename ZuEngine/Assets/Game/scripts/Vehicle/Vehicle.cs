@@ -4,59 +4,11 @@ using UnityEngine;
 using ZuEngine.Service;
 using ZuEngine.Utility;
 
-[SerializeField]
-public enum DriveType
-{
-	RearWheelDrive,
-	FrontWheelDrive,
-	AllWheelDrive
-}
-
 public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 {
 	private const float BICYCLE_JUMP_INTERVAL = 0.8f;
 
-	[Range(0.1f, 20f)]
-	[Tooltip("Natural frequency of the suspension springs. Describes bounciness of the suspension.")]
-	public float naturalFrequency = 10;
-
-	[Range(0f, 3f)]
-	[Tooltip("Damping ratio of the suspension springs. Describes how fast the spring returns back after a bounce. ")]
-	public float dampingRatio = 0.8f;
-
-	[Range(-1f, 1f)]
-	[Tooltip("The distance along the Y axis the suspension forces application point is offset below the center of mass")]
-	public float forceShift = 0.03f;
-
-	[Tooltip("Adjust the length of the suspension springs according to the natural frequency and damping ratio. When off, can cause unrealistic suspension bounce.")]
-	public bool setSuspensionDistance = true;
-
-	[Tooltip("Maximum steering angle of the wheels")]
-	public float maxAngle = 30f;
-	[Tooltip("Maximum torque applied to the driving wheels")]
-	public float maxTorque = 300f;
-	[Tooltip("Maximum brake torque applied to the driving wheels")]
-	public float brakeTorque = 30000f;
-
-	[Tooltip("The vehicle's speed when the physics engine can use different amount of sub-steps (in m/s).")]
-	public float criticalSpeed = 5f;
-	[Tooltip("Simulation sub-steps when the speed is above critical.")]
-	public int stepsBelow = 5;
-	[Tooltip("Simulation sub-steps when the speed is below critical.")]
-	public int stepsAbove = 1;
-
-	[Tooltip("The vehicle's drive type: rear-wheels drive, front-wheels drive or all-wheels drive.")]
-	public DriveType driveType;
-
-	[Header("Physic")]
-	[SerializeField]
-	private float m_jumpForce = 400f;
-	[SerializeField]
-	private float m_bicycleJumpForce = 20f;
-	[SerializeField]
-	private float m_bicycleJumpImpulse = 20f;
-	[SerializeField]
-	private float m_boostForce = 5f;
+	private VehiclePhysicValue m_physicParam;
 
 	private Transform m_trans;
 	private WheelCollider [] m_wheelColliders;
@@ -78,12 +30,8 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		m_trans = gameObject.transform;
 		m_wheelColliders = GetComponentsInChildren<WheelCollider> ();
 		m_rigidbody = GetComponent<Rigidbody> ();
+		m_physicParam = GetComponent<VehiclePhysicValue> ();
 
-		for (int i = 0; i < m_wheelColliders.Length; i++)
-		{
-			m_wheelColliders[i].ConfigureVehicleSubsteps(criticalSpeed, stepsBelow, stepsAbove);
-		}
-			
 		RegisterEvent ();
 	}
 		
@@ -143,6 +91,9 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	public void OnPhysicUpdate (float deltaTime)
 	{
+		#if UNITY_EDITOR
+		UpdatePhysicParam ();
+		#endif
 		bool isOnGround = IsOnGround ();
 
 		if ( !m_isOnGround )
@@ -152,8 +103,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 				m_isJumping = false;
 			}
 		}
-		
-		UpdateSuspension ();
+
 		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
 		Jump();
 		Boost();
@@ -162,28 +112,11 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	}
 
 	#endregion
-
-	private void UpdateSuspension()
+	private void UpdatePhysicParam()
 	{
-		// Work out the stiffness and damper parameters based on the better spring model.
-		foreach (WheelCollider wc in m_wheelColliders) 
+		for (int i = 0; i < m_wheelColliders.Length; i++)
 		{
-			JointSpring spring = wc.suspensionSpring;
-
-			float sqrtWcSprungMass = Mathf.Sqrt (wc.sprungMass);
-			spring.spring = sqrtWcSprungMass * naturalFrequency * sqrtWcSprungMass * naturalFrequency;
-			spring.damper = 2f * dampingRatio * Mathf.Sqrt(spring.spring * wc.sprungMass);
-
-			wc.suspensionSpring = spring;
-
-			Vector3 wheelRelativeBody = transform.InverseTransformPoint(wc.transform.position);
-			float distance = m_rigidbody.centerOfMass.y - wheelRelativeBody.y + wc.radius;
-
-			wc.forceAppPointDistance = distance - forceShift;
-
-			// Make sure the spring force at maximum droop is exactly zero
-			if (spring.targetPosition > 0 && setSuspensionDistance)
-				wc.suspensionDistance = wc.sprungMass * Physics.gravity.magnitude / (spring.targetPosition * spring.spring);
+			m_physicParam.UpdateWheelPhysicParam (m_wheelColliders [i], m_rigidbody);
 		}
 	}
 
@@ -192,7 +125,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		#if UNITY_EDITOR
 		m_turnAxisX = Input.GetAxis("Horizontal");
 		m_gas = Input.GetAxis("Vertical");
-		m_handBrake = Input.GetKey(KeyCode.X) ? brakeTorque : 0;
+		m_handBrake = Input.GetKey(KeyCode.X) ? m_physicParam.brakeTorque : 0;
 
 		if(UnityEngine.Input.GetKeyDown(KeyCode.Space))
 		{
@@ -210,8 +143,8 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
 	{
-		float angle = maxAngle * axisX;
-		float torque = maxTorque * gas;
+		float angle = m_physicParam.MaxAngle * axisX;
+		float torque = m_physicParam.MaxTorque * gas;
 
 		foreach (WheelCollider wheel in m_wheelColliders)
 		{
@@ -224,12 +157,12 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 				wheel.brakeTorque = handBrake;
 			}
 
-			if (wheel.transform.localPosition.z < 0 && driveType != DriveType.FrontWheelDrive)
+			if (wheel.transform.localPosition.z < 0 && m_physicParam.DriveType != DriveType.FrontWheelDrive)
 			{
 				wheel.motorTorque = torque;
 			}
 
-			if (wheel.transform.localPosition.z >= 0 && driveType != DriveType.RearWheelDrive)
+			if (wheel.transform.localPosition.z >= 0 && m_physicParam.DriveType != DriveType.RearWheelDrive)
 			{
 				wheel.motorTorque = torque;
 			}
@@ -252,7 +185,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		{
 			return;
 		}
-		m_rigidbody.AddForce (m_rigidbody.mass * m_boostForce * m_trans.forward, ForceMode.Impulse);
+		m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BoostForce * m_trans.forward, ForceMode.Impulse);
 	}
 
 	private void Jump()
@@ -267,7 +200,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		{
 			m_lastJumpTime = Time.time;
 			m_isJumping = true;
-			m_rigidbody.AddForce (m_rigidbody.mass * m_jumpForce * Vector3.up);
+			m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.JumpForce * Vector3.up);
 			m_isJump = false;
 		}
 	}
@@ -287,14 +220,14 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 		if ( m_turnAxisX == 0 )
 		{
-			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_bicycleJumpForce * Vector3.right , ForceMode.Impulse);
-			m_rigidbody.AddForce (m_rigidbody.mass * m_bicycleJumpImpulse * m_trans.forward , ForceMode.Impulse);
+			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.right , ForceMode.Impulse);
+			m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.forward , ForceMode.Impulse);
 		}
 		else
 		{
 			float delta = m_turnAxisX > 0 ? -1 : 1;
-			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_bicycleJumpForce * Vector3.forward , ForceMode.Impulse);
-			m_rigidbody.AddForce ( delta * m_rigidbody.mass * m_bicycleJumpImpulse * m_trans.right, ForceMode.Impulse);
+			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.forward , ForceMode.Impulse);
+			m_rigidbody.AddForce ( delta * m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.right, ForceMode.Impulse);
 		}
 	}
 
