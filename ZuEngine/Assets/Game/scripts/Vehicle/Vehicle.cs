@@ -12,10 +12,25 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private Transform m_trans;
 	private WheelCollider [] m_wheelColliders;
+	public WheelCollider[] WheelColliders
+	{
+		get{ return m_wheelColliders; }
+	}
+
 	private Rigidbody m_rigidbody;
 
 	private float m_turnAxisX = 0f;
+	public float TurnAxisX
+	{
+		get{ return m_turnAxisX; }
+	}
+
 	private float m_gas = 0f;
+	public float Gas
+	{
+		get{ return m_gas; }
+	}
+
 	private float m_handBrake = 0f;
 	private bool m_isBoost = false;
 
@@ -107,6 +122,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
 		Jump();
 		Boost();
+		AutoBrake ();
 
 		m_isOnGround = isOnGround;
 	}
@@ -139,6 +155,21 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		#endif
 
 
+	}
+
+	private void AutoBrake()
+	{
+		if ( m_gas != 0 )
+		{
+			float angle = Vector3.Dot (m_rigidbody.velocity, m_trans.forward);
+			if ( m_gas > 0 && angle < 0 || m_gas < 0 && angle > 0 )
+			{
+				m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, Time.fixedDeltaTime * m_physicParam.AutoBrakeDelta);
+			}
+			return;
+		}
+
+		m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, Time.fixedDeltaTime * m_physicParam.AutoBrakeDelta);
 	}
 
 	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
