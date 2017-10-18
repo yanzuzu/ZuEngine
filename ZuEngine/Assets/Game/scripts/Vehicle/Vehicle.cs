@@ -51,7 +51,11 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	}
 		
 	void Update () {
+		#if UNITY_EDITOR
 		UpdateController ();
+		#endif
+
+		OnPhysicUpdate (Time.fixedDeltaTime);
 
 		#if UNITY_EDITOR
 		if( Input.GetKeyDown(KeyCode.R))
@@ -66,7 +70,6 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	void FixedUpdate()
 	{
-		OnPhysicUpdate (Time.fixedDeltaTime);
 	}
 
 	private void RegisterEvent()
@@ -118,16 +121,31 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 				m_isJumping = false;
 			}
 		}
+		m_isOnGround = isOnGround;
 
 		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
 		Jump();
 		Boost();
 		AutoBrake ();
 
-		m_isOnGround = isOnGround;
+		UpdateDrag();
 	}
 
 	#endregion
+	private void UpdateDrag()
+	{
+		if ( m_isOnGround )
+		{
+			m_rigidbody.drag = m_physicParam.Drag;
+			m_rigidbody.angularDrag = m_physicParam.AngularDrag;
+		}
+		else
+		{
+			m_rigidbody.drag = m_physicParam.JumpDrag;
+			m_rigidbody.angularDrag = m_physicParam.JumpAngularDrag;
+		}
+	}
+
 	private void UpdatePhysicParam()
 	{
 		for (int i = 0; i < m_wheelColliders.Length; i++)
@@ -138,7 +156,6 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private void UpdateController()
 	{
-		#if UNITY_EDITOR
 		m_turnAxisX = Input.GetAxis("Horizontal");
 		m_gas = Input.GetAxis("Vertical");
 		m_handBrake = Input.GetKey(KeyCode.X) ? m_physicParam.brakeTorque : 0;
@@ -152,13 +169,15 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		}
 
 		m_isBoost = Input.GetKey(KeyCode.B);
-		#endif
-
-
 	}
 
 	private void AutoBrake()
 	{
+		if ( !m_isOnGround || m_isJumping || m_isJump)
+		{
+			return;
+		}
+
 		if ( m_gas != 0 )
 		{
 			float angle = Vector3.Dot (m_rigidbody.velocity, m_trans.forward);
@@ -249,15 +268,16 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			return;
 		}
 
+		m_rigidbody.angularVelocity *= 0.2f;
 		if ( m_turnAxisX == 0 )
 		{
-			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.right , ForceMode.Impulse);
+			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.right , ForceMode.Acceleration);
 			m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.forward , ForceMode.Impulse);
 		}
 		else
 		{
 			float delta = m_turnAxisX > 0 ? -1 : 1;
-			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.forward , ForceMode.Impulse);
+			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.forward , ForceMode.Acceleration);
 			m_rigidbody.AddForce ( delta * m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.right, ForceMode.Impulse);
 		}
 	}

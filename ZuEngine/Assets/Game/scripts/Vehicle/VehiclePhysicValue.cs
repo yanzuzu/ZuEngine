@@ -60,6 +60,20 @@ public class VehiclePhysicValue : MonoBehaviour
 	public float Sideways_Siffness = 1f;
 
 	/*#################### Vehicle Force  ########################*/
+	[Header("Drag")]
+	[SerializeField]
+	[Range(0f, 1f)]
+	public float Drag = 0.5f;
+	[SerializeField]
+	[Range(0f, 1f)]
+	public float AngularDrag = 0.9f;
+	[SerializeField]
+	[Range(0f, 1f)]
+	public float JumpDrag = 0.1f;
+	[SerializeField]
+	[Range(0f, 1f)]
+	public float JumpAngularDrag = 0.1f;
+
 	[Header("Jump")]
 	[SerializeField]
 	public float JumpForce = 400f;
@@ -67,6 +81,7 @@ public class VehiclePhysicValue : MonoBehaviour
 	public float BicycleJumpForce = 20f;
 	[SerializeField]
 	public float BicycleJumpImpulse = 20f;
+
 	[Header("boost")]
 	[SerializeField]
 	public float BoostForce = 5f;
