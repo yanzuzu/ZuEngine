@@ -60,6 +60,16 @@ public class VehiclePhysicValue : MonoBehaviour
 	public float Sideways_Siffness = 1f;
 
 	/*#################### Vehicle Force  ########################*/
+	[Header("MaxSpeed")]
+	[SerializeField]
+	public float MaxSpeed = 15f;
+	[Header("Center of Mass")]
+	[SerializeField]
+	public Vector3 CenterOfMass = new Vector3(0,1.4f,0.2f);
+	[Header("Stable Force")]
+	[SerializeField]
+	public float StableForce = 10f;
+
 	[Header("Drag")]
 	[SerializeField]
 	[Range(0f, 1f)]
@@ -86,10 +96,12 @@ public class VehiclePhysicValue : MonoBehaviour
 	[SerializeField]
 	public float BoostForce = 5f;
 	[SerializeField]
-	public float AutoBrakeDelta = 10f;
+	public float AutoBrakeDelta = 0.8f;
 
-	public void UpdateWheelPhysicParam(WheelCollider wc, Rigidbody rigidBody)
+	public void UpdatePhysicParam(WheelCollider wc, Rigidbody rigidBody)
 	{
+		rigidBody.centerOfMass = CenterOfMass;
+
 		wc.ConfigureVehicleSubsteps(CriticalSpeed, StepsBelow, StepsAbove);
 
 		JointSpring spring = wc.suspensionSpring;

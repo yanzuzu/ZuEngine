@@ -19,6 +19,13 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private Rigidbody m_rigidbody;
 
+	[SerializeField]
+	private float m_speed;
+	public float Speed
+	{
+		get{ return m_speed; }
+	}
+
 	private float m_turnAxisX = 0f;
 	public float TurnAxisX
 	{
@@ -127,11 +134,31 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		Jump();
 		Boost();
 		AutoBrake ();
+		LimitSpeed ();
 
 		UpdateDrag();
 	}
 
 	#endregion
+	private void LimitSpeed()
+	{
+		m_speed = m_rigidbody.velocity.magnitude;
+		if ( m_speed > m_physicParam.MaxSpeed )
+		{
+			m_rigidbody.velocity *= (m_physicParam.MaxSpeed/m_speed);
+		}
+	}
+
+	private void AddStableForce()
+	{
+		if ( !m_isOnGround )
+		{
+			return;
+		}
+		float stableForce = Mathf.Lerp (0, m_physicParam.StableForce, m_speed / m_physicParam.MaxSpeed);
+		m_rigidbody.AddForce (-Vector3.up * stableForce * m_rigidbody.mass);
+	}
+
 	private void UpdateDrag()
 	{
 		if ( m_isOnGround )
@@ -150,7 +177,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	{
 		for (int i = 0; i < m_wheelColliders.Length; i++)
 		{
-			m_physicParam.UpdateWheelPhysicParam (m_wheelColliders [i], m_rigidbody);
+			m_physicParam.UpdatePhysicParam (m_wheelColliders [i], m_rigidbody);
 		}
 	}
 
@@ -175,6 +202,10 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	{
 		if ( !m_isOnGround || m_isJumping || m_isJump)
 		{
+			foreach (WheelCollider wheel in m_wheelColliders)
+			{
+				wheel.brakeTorque = 0f;
+			}
 			return;
 		}
 
@@ -183,12 +214,16 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			float angle = Vector3.Dot (m_rigidbody.velocity, m_trans.forward);
 			if ( m_gas > 0 && angle < 0 || m_gas < 0 && angle > 0 )
 			{
-				m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, Time.fixedDeltaTime * m_physicParam.AutoBrakeDelta);
+				m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, 0.8f);
 			}
 			return;
 		}
-
-		m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, Time.fixedDeltaTime * m_physicParam.AutoBrakeDelta);
+		//m_rigidbody.velocity *= m_physicParam.AutoBrakeDelta;
+		m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, m_physicParam.AutoBrakeDelta);
+//		foreach (WheelCollider wheel in m_wheelColliders)
+//		{
+//			wheel.brakeTorque = m_physicParam.brakeTorque;
+//		}
 	}
 
 	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
@@ -220,7 +255,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			Quaternion q;
 			Vector3 p;
 			wheel.GetWorldPose (out p, out q);
-
+			
 			// Assume that the only child of the wheelcollider is the wheel shape.
 			Transform shapeTransform = wheel.transform.GetChild (0);
 			shapeTransform.position = p;
@@ -235,7 +270,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		{
 			return;
 		}
-		m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BoostForce * m_trans.forward, ForceMode.Impulse);
+		m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BoostForce * m_trans.forward, ForceMode.Force);
 	}
 
 	private void Jump()

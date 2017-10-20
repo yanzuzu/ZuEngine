@@ -919,6 +919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3765f82805cb91f4e84060716021fc94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_speed: 0
 --- !u!114 &1053922699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -951,6 +952,9 @@ MonoBehaviour:
   Sideways_AsymptoteSlip: 0.05
   Sideways_AsymptoteValue: 0.75
   Sideways_Siffness: 2
+  MaxSpeed: 60
+  CenterOfMass: {x: 0, y: 1.4, z: 0.2}
+  StableForce: 100
   Drag: 0.4
   AngularDrag: 0.95
   JumpDrag: 0.1
@@ -958,8 +962,8 @@ MonoBehaviour:
   JumpForce: 500
   BicycleJumpForce: 30
   BicycleJumpImpulse: 20
-  BoostForce: 5
-  AutoBrakeDelta: 5
+  BoostForce: 10
+  AutoBrakeDelta: 0.8
 --- !u!114 &1053922700
 MonoBehaviour:
   m_ObjectHideFlags: 0
