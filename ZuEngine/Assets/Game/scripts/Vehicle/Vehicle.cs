@@ -19,7 +19,6 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private Rigidbody m_rigidbody;
 
-	[SerializeField]
 	private float m_speed;
 	public float Speed
 	{
@@ -46,6 +45,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	private bool m_isJumping = false;
 
 	private float m_lastJumpTime = 0f;
+	private bool m_lastBrakeState = false;
 
 	void Start () 
 	{
@@ -202,10 +202,6 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	{
 		if ( !m_isOnGround || m_isJumping || m_isJump)
 		{
-			foreach (WheelCollider wheel in m_wheelColliders)
-			{
-				wheel.brakeTorque = 0f;
-			}
 			return;
 		}
 
@@ -214,16 +210,33 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			float angle = Vector3.Dot (m_rigidbody.velocity, m_trans.forward);
 			if ( m_gas > 0 && angle < 0 || m_gas < 0 && angle > 0 )
 			{
-				m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, 0.8f);
+				SetWheelBrake (Mathf.Infinity);
+			}
+			else
+			{
+				if ( m_lastBrakeState )
+				{
+					SetWheelBrake (0);
+				}
+
 			}
 			return;
 		}
-		//m_rigidbody.velocity *= m_physicParam.AutoBrakeDelta;
-		m_rigidbody.velocity = Vector3.Lerp (m_rigidbody.velocity, Vector3.zero, m_physicParam.AutoBrakeDelta);
-//		foreach (WheelCollider wheel in m_wheelColliders)
-//		{
-//			wheel.brakeTorque = m_physicParam.brakeTorque;
-//		}
+
+		if (!m_lastBrakeState || m_speed > m_physicParam.AutoBrakeThres)
+		{
+			SetWheelBrake (Mathf.Infinity);
+		}
+
+	}
+
+	private void SetWheelBrake(float brake)
+	{
+		foreach (WheelCollider wheel in m_wheelColliders)
+		{
+			wheel.brakeTorque = brake;
+		}
+		m_lastBrakeState = brake == 0 ? false : true;
 	}
 
 	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)

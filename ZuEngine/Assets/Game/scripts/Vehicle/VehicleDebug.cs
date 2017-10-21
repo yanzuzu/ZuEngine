@@ -22,8 +22,10 @@ public class VehicleDebug : MonoBehaviour
 			return;
 		}
 		string inputTxt = string.Empty;
-		inputTxt = string.Format ("axisX = {0}\nGas = {1}\nWheel torque = {2}",
-			m_vehicle.TurnAxisX, m_vehicle.Gas, m_vehicle.WheelColliders[2].motorTorque);
+		inputTxt = string.Format ("axisX = {0}\nGas = {1}\nWheel torque = {2}" +
+			"\nSpeed = {3}",
+			m_vehicle.TurnAxisX, m_vehicle.Gas, m_vehicle.WheelColliders[2].motorTorque,
+			m_vehicle.Speed);
 		m_debugTxt.text = inputTxt;
 	}
 }

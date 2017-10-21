@@ -96,7 +96,7 @@ public class VehiclePhysicValue : MonoBehaviour
 	[SerializeField]
 	public float BoostForce = 5f;
 	[SerializeField]
-	public float AutoBrakeDelta = 0.8f;
+	public float AutoBrakeThres = 0.5f;
 
 	public void UpdatePhysicParam(WheelCollider wc, Rigidbody rigidBody)
 	{
