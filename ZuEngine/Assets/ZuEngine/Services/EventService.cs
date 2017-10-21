@@ -28,7 +28,7 @@ namespace ZuEngine.Service
 			m_eventCbs = new List<eventCallBack>[System.Enum.GetNames (typeof(EventIDs)).Length];
 		}
 
-		public object SendEvent(EventIDs eventId, object userData)
+		public object SendEvent(EventIDs eventId, object userData = null)
 		{
 			int eventIdx = (int)eventId;
 			if ( m_eventCbs [eventIdx] == null ) 

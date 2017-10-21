@@ -16,6 +16,10 @@ public class ControllerView : MonoBehaviour
 	private Button m_gasBtn;
 	[SerializeField]
 	private Button m_backBtn;
+	[SerializeField]
+	private Button m_jumpBtn;
+	[SerializeField]
+	private Button m_boostBtn;
 
 	void Start()
 	{
@@ -35,6 +39,11 @@ public class ControllerView : MonoBehaviour
 
 		m_backBtn.gameObject.AddEventTrigger (EventTriggerType.PointerEnter, OnBackBtnEnter , true);
 		m_backBtn.gameObject.AddEventTrigger (EventTriggerType.PointerExit, OnBackBtnEnter , false);
+
+		m_jumpBtn.gameObject.AddEventTrigger (EventTriggerType.PointerClick, OnJumpBtnClick);
+
+		m_boostBtn.gameObject.AddEventTrigger (EventTriggerType.PointerEnter, OnBoostBtnEnter , true);
+		m_boostBtn.gameObject.AddEventTrigger (EventTriggerType.PointerExit, OnBoostBtnEnter , false);
 	}
 
 	private void OnLeftBtnEnter( GameObjTriggerData data)
@@ -55,5 +64,15 @@ public class ControllerView : MonoBehaviour
 	private void OnBackBtnEnter( GameObjTriggerData data)
 	{
 		EventService.Instance.SendEvent (EventIDs.UI_CONTROLLER_BACK_ENTER, (bool)data.userData);
+	}
+
+	private void OnJumpBtnClick( GameObjTriggerData data )
+	{
+		EventService.Instance.SendEvent (EventIDs.UI_CONTROLLER_JUMP_CLICK);
+	}
+
+	private void OnBoostBtnEnter( GameObjTriggerData data)
+	{
+		EventService.Instance.SendEvent (EventIDs.UI_CONTROLLER_BOOST_ENTER, (bool)data.userData);
 	}
 }

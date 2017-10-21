@@ -25,25 +25,14 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		get{ return m_speed; }
 	}
 
-	private float m_turnAxisX = 0f;
-	public float TurnAxisX
+	private VehicleControlData m_ctrlData = new VehicleControlData();
+	public VehicleControlData CtrlData
 	{
-		get{ return m_turnAxisX; }
+		get{ return m_ctrlData;}
 	}
-
-	private float m_gas = 0f;
-	public float Gas
-	{
-		get{ return m_gas; }
-	}
-
-	private float m_handBrake = 0f;
-	private bool m_isBoost = false;
-
+		
 	private bool m_isOnGround = true;
-	private bool m_isJump = false;
 	private bool m_isJumping = false;
-
 	private float m_lastJumpTime = 0f;
 	private bool m_lastBrakeState = false;
 
@@ -59,7 +48,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		
 	void Update () {
 		#if UNITY_EDITOR
-		UpdateController ();
+		//UpdateController ();
 		#endif
 
 		OnPhysicUpdate (Time.fixedDeltaTime);
@@ -85,33 +74,47 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_RIGHT_ENTER, OnRightBtnEnter);
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_GAS_ENTER, OnGasBtnEnter);
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BACK_ENTER, OnBackBtnEnter);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BOOST_ENTER, OnBoostBtnEnter);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_JUMP_CLICK, OnJumpBtnClick);
 	}
 
 	EventResult OnLeftBtnEnter(object eventData)
 	{
-		m_turnAxisX = (bool)eventData ? -1f : 0f;
+		CtrlData.TurnAxisX = (bool)eventData ? -1f : 0f;
 		return null;
 	}
 
 	EventResult OnRightBtnEnter(object eventData)
 	{
-		m_turnAxisX = (bool)eventData ? 1f : 0f;
+		CtrlData.TurnAxisX = (bool)eventData ? 1f : 0f;
 		return null;
 	}
 
 	EventResult OnGasBtnEnter(object eventData)
 	{
-		m_gas = (bool)eventData ? 1f : 0f;
+		CtrlData.Gas = (bool)eventData ? 1f : 0f;
 		return null;
 	}
 
 	EventResult OnBackBtnEnter(object eventData)
 	{
-		m_gas = (bool)eventData ? -1f : 0f;
+		CtrlData.Gas = (bool)eventData ? -1f : 0f;
+		return null;
+	}
+
+	EventResult OnBoostBtnEnter(object eventData)
+	{
+		CtrlData.IsBoost = (bool)eventData;
 		return null;
 	}
 
 
+	EventResult OnJumpBtnClick(object eventData)
+	{
+		CtrlData.IsJump = true;
+		return null;
+	}
+		
 	#region IVehicle implementation
 
 	public void OnPhysicUpdate (float deltaTime)
@@ -130,9 +133,9 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		}
 		m_isOnGround = isOnGround;
 
-		UpdateWheelPhysics (m_gas,m_turnAxisX,m_handBrake);
-		Jump();
 		Boost();
+		Jump();
+		UpdateWheelPhysics ();
 		AutoBrake ();
 		LimitSpeed ();
 
@@ -183,32 +186,38 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private void UpdateController()
 	{
-		m_turnAxisX = Input.GetAxis("Horizontal");
-		m_gas = Input.GetAxis("Vertical");
-		m_handBrake = Input.GetKey(KeyCode.X) ? m_physicParam.brakeTorque : 0;
+		CtrlData.IsBoost = Input.GetKey(KeyCode.B);
+
+		CtrlData.TurnAxisX = Input.GetAxis("Horizontal");
+		CtrlData.Gas = Input.GetAxis("Vertical");
+		CtrlData.HandBrake = Input.GetKey(KeyCode.X) ? m_physicParam.brakeTorque : 0;
 
 		if(UnityEngine.Input.GetKeyDown(KeyCode.Space))
 		{
-			m_isJump = true;
+			CtrlData.IsJump = true;
 		}else
 		{
-			m_isJump = false;
+			CtrlData.IsJump = false;
 		}
-
-		m_isBoost = Input.GetKey(KeyCode.B);
 	}
 
 	private void AutoBrake()
 	{
-		if ( !m_isOnGround || m_isJumping || m_isJump)
+		if ( !m_isOnGround || m_isJumping || CtrlData.IsJump )
 		{
 			return;
 		}
 
-		if ( m_gas != 0 )
+		float gas = m_ctrlData.Gas;
+		if ( m_ctrlData.IsBoost )
+		{
+			gas = 1f;
+		}
+
+		if ( gas != 0 )
 		{
 			float angle = Vector3.Dot (m_rigidbody.velocity, m_trans.forward);
-			if ( m_gas > 0 && angle < 0 || m_gas < 0 && angle > 0 )
+			if ( gas > 0 && angle < 0 || gas < 0 && angle > 0 )
 			{
 				SetWheelBrake (Mathf.Infinity);
 			}
@@ -239,9 +248,14 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		m_lastBrakeState = brake == 0 ? false : true;
 	}
 
-	private void UpdateWheelPhysics(float gas, float axisX, float handBrake)
+	private void UpdateWheelPhysics()
 	{
-		float angle = m_physicParam.MaxAngle * axisX;
+		float gas = m_ctrlData.Gas;
+		if ( m_ctrlData.IsBoost )
+		{
+			gas = 1f;
+		}
+		float angle = m_physicParam.MaxAngle * m_ctrlData.TurnAxisX;
 		float torque = m_physicParam.MaxTorque * gas;
 
 		foreach (WheelCollider wheel in m_wheelColliders)
@@ -252,7 +266,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 			if (wheel.transform.localPosition.z < 0)
 			{
-				wheel.brakeTorque = handBrake;
+				wheel.brakeTorque = m_ctrlData.HandBrake;
 			}
 
 			if (wheel.transform.localPosition.z < 0 && m_physicParam.DriveType != DriveType.FrontWheelDrive)
@@ -279,7 +293,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	private void Boost()
 	{
-		if ( !m_isBoost )
+		if ( !CtrlData.IsBoost )
 		{
 			return;
 		}
@@ -294,18 +308,18 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			return;
 		}
 
-		if ( m_isJump )
+		if ( CtrlData.IsJump )
 		{
 			m_lastJumpTime = Time.time;
 			m_isJumping = true;
 			m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.JumpForce * Vector3.up);
-			m_isJump = false;
+			CtrlData.IsJump = false;
 		}
 	}
 
 	private void BicycleJump()
 	{
-		if ( !m_isJump )
+		if ( !CtrlData.IsJump )
 		{
 			return;
 		}
@@ -317,17 +331,18 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		}
 
 		m_rigidbody.angularVelocity *= 0.2f;
-		if ( m_turnAxisX == 0 )
+		if ( CtrlData.TurnAxisX == 0 )
 		{
 			m_rigidbody.AddRelativeTorque (m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.right , ForceMode.Acceleration);
 			m_rigidbody.AddForce (m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.forward , ForceMode.Impulse);
 		}
 		else
 		{
-			float delta = m_turnAxisX > 0 ? -1 : 1;
+			float delta = CtrlData.TurnAxisX > 0 ? -1 : 1;
 			m_rigidbody.AddRelativeTorque (delta * m_rigidbody.mass * m_physicParam.BicycleJumpForce * Vector3.forward , ForceMode.Acceleration);
 			m_rigidbody.AddForce ( delta * m_rigidbody.mass * m_physicParam.BicycleJumpImpulse * m_trans.right, ForceMode.Impulse);
 		}
+		CtrlData.IsJump = false;
 	}
 
 	private bool IsOnGround()
