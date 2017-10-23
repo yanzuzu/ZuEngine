@@ -48,7 +48,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		
 	void Update () {
 		#if UNITY_EDITOR
-		//UpdateController ();
+		UpdateController ();
 		#endif
 
 		OnPhysicUpdate (Time.fixedDeltaTime);
