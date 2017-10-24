@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4395417610975988}
+  - component: {fileID: 114520586119220976}
   m_Layer: 0
   m_Name: GunRoot
   m_TagString: Untagged
@@ -140,6 +141,7 @@ GameObject:
   - component: {fileID: 114436290669047486}
   - component: {fileID: 114953544265992782}
   - component: {fileID: 114034297432336074}
+  - component: {fileID: 114358777462432756}
   m_Layer: 0
   m_Name: Vehicle_1
   m_TagString: Untagged
@@ -235,13 +237,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1954022078381296}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4395417610975988}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!4 &4256323415687466
 Transform:
   m_ObjectHideFlags: 1
@@ -275,14 +277,14 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1041293950230554}
-  m_LocalRotation: {x: -0, y: -0.99996066, z: -0, w: -0.008870293}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 2.82, z: -0.38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4205069924439284}
   m_Father: {fileID: 4059505266218032}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: -181.01599, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4424129439465730
 Transform:
   m_ObjectHideFlags: 1
@@ -623,6 +625,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_debugTxt: {fileID: 0}
+--- !u!114 &114358777462432756
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1531534972134496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d8a07eef612543bfd79b1a6c50ed1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TriggerRadius: 100
+  m_launcher: {fileID: 114520586119220976}
 --- !u!114 &114436290669047486
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -634,6 +649,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3765f82805cb91f4e84060716021fc94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114520586119220976
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1041293950230554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d5f6f5ff23fa14dbf3d902639699f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RotateSpeed: 10
+  ImpulseForce: 100
+  LaunchTime: 1
 --- !u!114 &114953544265992782
 MonoBehaviour:
   m_ObjectHideFlags: 1

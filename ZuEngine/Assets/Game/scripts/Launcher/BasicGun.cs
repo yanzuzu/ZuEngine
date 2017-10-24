@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.Utility;
 
-public class BasicGun : MonoBehaviour
+public class BasicGun : MonoBehaviour , ILauncher
 {
 	public float RotateSpeed = 100f;
+	public float ImpulseForce = 100f;
+	public float LaunchTime = 2f;
 
+	private float m_lastLaunchTime = 0f;
 	private ILauncherTarget m_target;
 
 	public void SetTarget(ILauncherTarget target)
@@ -14,6 +17,20 @@ public class BasicGun : MonoBehaviour
 		m_target = target;
 	}
 
+	public void Fire()
+	{
+		if ( Time.time - m_lastLaunchTime < LaunchTime )
+		{
+			return;
+		}
+		m_lastLaunchTime = Time.time;
+		GameObject bullet = GameObject.Instantiate( Resources.Load<GameObject>("Bullet/Bullet") );
+		bullet.transform.position = transform.position;
+		bullet.transform.rotation = transform.rotation;
+		IBullet bulletComponent = bullet.GetComponent<IBullet> ();
+		bulletComponent.AddImpulse (transform.forward * ImpulseForce);
+	}
+		
 	void Update()
 	{
 		if ( null == m_target )

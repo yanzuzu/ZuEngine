@@ -24,6 +24,7 @@ public class FireSystem : MonoBehaviour
 				continue;
 			}
 			m_launcher.SetTarget (target);
+			m_launcher.Fire ();
 			return;
 		}
 		m_launcher.SetTarget (null);
