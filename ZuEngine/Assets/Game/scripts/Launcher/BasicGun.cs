@@ -40,5 +40,19 @@ public class BasicGun : MonoBehaviour , ILauncher
 		Vector3 targetDir = m_target.GeLauncherTargetPos () - transform.position;
 		Vector3 newDir = Vector3.RotateTowards (transform.forward, targetDir, RotateSpeed * Time.deltaTime, 0f);
 		transform.rotation = Quaternion.LookRotation (newDir);
+
+		if ( Input.GetKeyDown (KeyCode.A) )
+		{
+			FireMissile ();
+		}
+	}
+
+	void FireMissile()
+	{
+		GameObject missile = GameObject.Instantiate( Resources.Load<GameObject>("Bullet/Missile") );
+		missile.transform.position = transform.position;
+		missile.transform.rotation = transform.rotation;
+		Missile missileComponent = missile.GetComponent<Missile> ();
+		missileComponent.SetTarget (m_target);
 	}
 }
