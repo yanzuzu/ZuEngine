@@ -29,6 +29,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	public VehicleControlData CtrlData
 	{
 		get{ return m_ctrlData;}
+		set{ m_ctrlData = value; }
 	}
 		
 	private bool m_isOnGround = true;
@@ -42,15 +43,10 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 		m_wheelColliders = GetComponentsInChildren<WheelCollider> ();
 		m_rigidbody = GetComponent<Rigidbody> ();
 		m_physicParam = GetComponent<VehiclePhysicValue> ();
-
-		RegisterEvent ();
 	}
 		
-	void Update () {
-		#if UNITY_EDITOR
-		UpdateController ();
-		#endif
-
+	void Update () 
+	{
 		OnPhysicUpdate (Time.fixedDeltaTime);
 
 		#if UNITY_EDITOR
@@ -66,53 +62,6 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 
 	void FixedUpdate()
 	{
-	}
-
-	private void RegisterEvent()
-	{
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_LEFT_ENTER, OnLeftBtnEnter);
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_RIGHT_ENTER, OnRightBtnEnter);
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_GAS_ENTER, OnGasBtnEnter);
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BACK_ENTER, OnBackBtnEnter);
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BOOST_ENTER, OnBoostBtnEnter);
-		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_JUMP_CLICK, OnJumpBtnClick);
-	}
-
-	EventResult OnLeftBtnEnter(object eventData)
-	{
-		CtrlData.TurnAxisX = (bool)eventData ? -1f : 0f;
-		return null;
-	}
-
-	EventResult OnRightBtnEnter(object eventData)
-	{
-		CtrlData.TurnAxisX = (bool)eventData ? 1f : 0f;
-		return null;
-	}
-
-	EventResult OnGasBtnEnter(object eventData)
-	{
-		CtrlData.Gas = (bool)eventData ? 1f : 0f;
-		return null;
-	}
-
-	EventResult OnBackBtnEnter(object eventData)
-	{
-		CtrlData.Gas = (bool)eventData ? -1f : 0f;
-		return null;
-	}
-
-	EventResult OnBoostBtnEnter(object eventData)
-	{
-		CtrlData.IsBoost = (bool)eventData;
-		return null;
-	}
-
-
-	EventResult OnJumpBtnClick(object eventData)
-	{
-		CtrlData.IsJump = true;
-		return null;
 	}
 		
 	#region IVehicle implementation
@@ -183,24 +132,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 			m_physicParam.UpdatePhysicParam (m_wheelColliders [i], m_rigidbody);
 		}
 	}
-
-	private void UpdateController()
-	{
-		CtrlData.IsBoost = Input.GetKey(KeyCode.B);
-
-		CtrlData.TurnAxisX = Input.GetAxis("Horizontal");
-		CtrlData.Gas = Input.GetAxis("Vertical");
-		CtrlData.HandBrake = Input.GetKey(KeyCode.X) ? m_physicParam.brakeTorque : 0;
-
-		if(UnityEngine.Input.GetKeyDown(KeyCode.Space))
-		{
-			CtrlData.IsJump = true;
-		}else
-		{
-			CtrlData.IsJump = false;
-		}
-	}
-
+		
 	private void AutoBrake()
 	{
 		if ( !m_isOnGround || m_isJumping || CtrlData.IsJump )
