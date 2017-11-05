@@ -48,6 +48,8 @@ public class Ball : MonoBehaviour
 			ZuLog.LogWarning ("no attach target can shoot");
 			return;
 		}
+		m_rigid.isKinematic = false;
+
 		Vector3 forward =  m_attachTarget.forward;
 		forward.y += 0.5f;
 		m_rigid.AddForce (forward * ShootForce, ForceMode.Impulse);
@@ -62,5 +64,13 @@ public class Ball : MonoBehaviour
 		}
 
 		m_attachTarget = other.gameObject.transform;
+		m_rigid.velocity = Vector3.zero;
+		m_rigid.angularVelocity = Vector3.zero;
+		m_rigid.isKinematic = true;
+		ShootBallSystem shootSystem = m_attachTarget.GetComponent<ShootBallSystem> ();
+		if ( shootSystem != null )
+		{
+			shootSystem.AttachBall (this);
+		}
 	}
 }

@@ -135,6 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 734151187653cc3448c9d129a3dab7bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShootBallTimer: 3
 --- !u!1 &35124845
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,7 +657,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f984c22a730d64d8ca5e5cbde8f6ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShootForce: 40
+  ShootForce: 25
 --- !u!135 &569286113
 SphereCollider:
   m_ObjectHideFlags: 0
