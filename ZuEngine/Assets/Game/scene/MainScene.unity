@@ -124,6 +124,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6c0b43e57cc31a4b8216a283c6179c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2939711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2939701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734151187653cc3448c9d129a3dab7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &35124845
 GameObject:
   m_ObjectHideFlags: 0
@@ -645,6 +656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f984c22a730d64d8ca5e5cbde8f6ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShootForce: 40
 --- !u!135 &569286113
 SphereCollider:
   m_ObjectHideFlags: 0

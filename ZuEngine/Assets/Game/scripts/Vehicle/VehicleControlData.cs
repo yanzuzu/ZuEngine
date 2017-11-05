@@ -8,4 +8,5 @@ public class VehicleControlData
 	public float HandBrake = 0f;
 	public bool IsBoost = false;
 	public bool IsJump = false;
+	public bool IsShoot = false;
 }

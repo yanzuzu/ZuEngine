@@ -23,6 +23,7 @@ public class VehicleControl : MonoBehaviour
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BACK_ENTER, OnBackBtnEnter);
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_BOOST_ENTER, OnBoostBtnEnter);
 		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_JUMP_CLICK, OnJumpBtnClick);
+		EventService.Instance.RegisterEvent (EventIDs.UI_CONTROLLER_SHOOT, OnShootClick);
 	}
 
 	EventResult OnLeftBtnEnter(object eventData)
@@ -62,6 +63,12 @@ public class VehicleControl : MonoBehaviour
 		return null;
 	}
 
+	EventResult OnShootClick(object eventData)
+	{
+		m_ctrlData.IsShoot = (bool)eventData;
+		return null;
+	}
+
 	// Update is called once per frame
 	void Update () {
 		#if UNITY_EDITOR
@@ -84,5 +91,7 @@ public class VehicleControl : MonoBehaviour
 		{
 			m_ctrlData.IsJump = false;
 		}
+
+		m_ctrlData.IsShoot = UnityEngine.Input.GetKeyDown (KeyCode.S);
 	}
 }
