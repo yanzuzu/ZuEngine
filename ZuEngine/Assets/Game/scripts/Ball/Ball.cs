@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.Utility;
+using ZuEngine.Service;
 
 public class Ball : MonoBehaviour 
 {
@@ -19,6 +20,8 @@ public class Ball : MonoBehaviour
 		}
 
 		MainGameService.Instance.Ball = this;
+
+		EventService.Instance.RegisterEvent (EventIDs.ON_GOAL, OnGoal);
 	}
 		
 	void Update()
@@ -26,10 +29,7 @@ public class Ball : MonoBehaviour
 		#if UNITY_EDITOR
 		if( Input.GetKeyDown(KeyCode.R))
 		{
-			transform.position = new Vector3(100.0f , 0.2f, 120.0f );
-			transform.localRotation = Quaternion.Euler(Vector3.zero);
-			m_rigid.velocity = Vector3.zero;
-			m_rigid.angularVelocity = Vector3.zero;
+			ResetBall();
 		}
 		#endif
 
@@ -39,6 +39,14 @@ public class Ball : MonoBehaviour
 		}
 
 		transform.position = m_attachTarget.position + new Vector3(0,2f,0) + m_attachTarget.forward * 6f;
+	}
+
+	void ResetBall()
+	{
+		transform.position = new Vector3(100.0f , 0.2f, 120.0f );
+		transform.localRotation = Quaternion.Euler(Vector3.zero);
+		m_rigid.velocity = Vector3.zero;
+		m_rigid.angularVelocity = Vector3.zero;
 	}
 
 	public void Shoot()
@@ -72,5 +80,11 @@ public class Ball : MonoBehaviour
 		{
 			shootSystem.AttachBall (this);
 		}
+	}
+
+	EventResult OnGoal( object eventData )
+	{
+		ResetBall ();
+		return null;
 	}
 }
