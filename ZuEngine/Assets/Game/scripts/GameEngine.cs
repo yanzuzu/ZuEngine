@@ -11,7 +11,7 @@ public class GameEngine : ZuEngineGameObj
 	// Use this for initialization
 	public override void Start () {
 		base.Start ();
-		m_gameStateMgr.ChangeState (new MainGameState ());
+		m_gameStateMgr.ChangeState (new InitLoadingState ());
 	}
 	
 	// Update is called once per frame

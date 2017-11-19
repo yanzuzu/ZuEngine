@@ -14,6 +14,7 @@ public class MainGameState : BaseGameState {
 	#region IGameState implementation
 	public override void OnInit(GameStateManager stateMgr)
 	{
+		ZuLog.Log ("MainGameState OnInit!");
 		base.OnInit (stateMgr);
 		if ( Camera.main == null ) 
 		{
