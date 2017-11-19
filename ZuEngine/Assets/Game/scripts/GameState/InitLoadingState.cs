@@ -4,30 +4,38 @@ using UnityEngine;
 using ZuEngine.GameState;
 using ZuEngine.Service;
 using ZuEngine.Utility;
+using ZuEngine.Service.Network;
 
 public class InitLoadingState : BaseGameState 
 {
+	long NETWORK_TASK_STATE;
+	long FINISH_TASK_STATE;
 
 	#region IGameState implementation
 	public override void OnInit(GameStateManager stateMgr)
 	{
 		ZuLog.Log ("InitLoadingState OnInit");
 		base.OnInit (stateMgr);
-		EventService.Instance.RegisterEvent (EventIDs.ON_NETWORK_CONNECT_FINISH, OnConnectFinish);
+
+		NETWORK_TASK_STATE = GetTaskState ();
+		FINISH_TASK_STATE = GetTaskState ();
+
+		AddTask (new InitLoadingNetworkTask(), NETWORK_TASK_STATE);
+		ChangeTaskState(NETWORK_TASK_STATE);
+
+		EventService.Instance.RegisterEvent (EventIDs.INIT_LOADING_NETWORK_FINISH, OnNetworkFinish);
 	}
 	public override void OnUpdate (float deltaTime)
 	{
-		
 	}
 	public override void OnDestroy ()
 	{
-
+		
 	}
 	#endregion
 
-	private EventResult OnConnectFinish(object eventData)
+	private EventResult OnNetworkFinish(object eventData)
 	{
-		ZuLog.Log ("InitLoadingState OnConnectFinish");
 		ChangeState (new MainGameState ());
 		return null;
 	}

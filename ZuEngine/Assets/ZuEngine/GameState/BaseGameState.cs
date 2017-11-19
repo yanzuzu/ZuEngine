@@ -13,6 +13,21 @@ namespace ZuEngine.GameState
 			m_stateMgr.ChangeState (gameState);
 		}
 
+		public long GetTaskState()
+		{
+			return m_stateMgr.GetTaskState ();
+		}
+
+		public void AddTask(BaseTask task, long taskState)
+		{
+			m_stateMgr.AddTask (task, taskState);
+		}
+
+		public void ChangeTaskState(long taskState)
+		{
+			m_stateMgr.ChangeTaskState (taskState);
+		}
+
 		#region IGameState implementation
 
 		public virtual void OnInit (GameStateManager stateMgr)

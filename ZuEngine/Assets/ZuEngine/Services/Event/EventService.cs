@@ -37,9 +37,14 @@ namespace ZuEngine.Service
 			}
 
 			object returnObj = null;
-			for (int i = 0; i < m_eventCbs [eventIdx].Count; i++) 
+			for (int i = m_eventCbs [eventIdx].Count - 1; i >= 0; i--) 
 			{
 				eventCallBack eventCb = m_eventCbs [eventIdx] [i];
+				if ( eventCb == null )
+				{
+					m_eventCbs [eventIdx].RemoveAt (i);
+					continue;
+				}
 				EventResult result = eventCb (userData);
 				if ( result != null )
 				{
@@ -62,5 +67,6 @@ namespace ZuEngine.Service
 			}
 			m_eventCbs [eventIdx].Add (cb);
 		}
+
 	}
 }
