@@ -3,38 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.GameState;
 using ZuEngine.Utility;
+using ZuEngine.Service;
 
 public class MainGameState : BaseGameState {
 
 	private VehicleCamera m_camera;
-	private Vehicle m_vehicle;
 
-	private JoyStickController m_controllerUI;
+	private long INIT_STATE = 0;
 
 	#region IGameState implementation
 	public override void OnInit(GameStateManager stateMgr)
 	{
 		ZuLog.Log ("MainGameState OnInit!");
 		base.OnInit (stateMgr);
-		if ( Camera.main == null ) 
-		{
-			ZuLog.LogError ("can't get the main camera");	
-			return;
-		}
-		m_camera = Camera.main.GetComponent<VehicleCamera> ();
+		INIT_STATE = GetTaskState ();
 
-		GameObject vehicle = GameObject.Find ("Vehicle_1");
-		if ( vehicle == null ) 
-		{
-			ZuLog.LogError ("can't get the vehicle");
-			return;
-		}
-		m_vehicle = vehicle.GetComponent<Vehicle> ();
+		AddTask (new MainGameInitResTask (), INIT_STATE);
 
-		m_camera.SetTarget (m_vehicle);
+		EventService.Instance.RegisterEvent (EventIDs.MAINGAME_LOAD_RES_FINISH, OnResLoadedFinish);
 
-		m_controllerUI = new JoyStickController ();
+		ChangeTaskState (INIT_STATE);
 	}
+
 	public override void OnUpdate (float deltaTime)
 	{
 		if ( m_camera != null ) 
@@ -42,9 +32,17 @@ public class MainGameState : BaseGameState {
 			m_camera.OnUpdate (deltaTime);
 		}
 	}
+
 	public override void OnDestroy ()
 	{
 		
 	}
 	#endregion
+
+	private EventResult OnResLoadedFinish( object eventData )
+	{
+		m_camera = MainGameService.Instance.Camera;
+		m_camera.SetTarget (MainGameService.Instance.Vehicles [0]);
+		return null;
+	}
 }
