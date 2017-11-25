@@ -31,6 +31,7 @@ namespace ZuEngine.GameState
 
 		abstract public void Update(float deltaTime);
 
+		abstract public void Destroy();
 		#endregion
 	}
 }

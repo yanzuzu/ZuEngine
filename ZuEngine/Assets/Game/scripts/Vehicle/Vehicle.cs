@@ -37,7 +37,7 @@ public class Vehicle : MonoBehaviour , ICameraTarget , IVehicle
 	private float m_lastJumpTime = 0f;
 	private bool m_lastBrakeState = false;
 
-	void Start () 
+	void Awake () 
 	{
 		m_trans = gameObject.transform;
 		m_wheelColliders = GetComponentsInChildren<WheelCollider> ();

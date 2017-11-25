@@ -13,7 +13,7 @@ public class VehicleCamera : MonoBehaviour, ICamera
 
 	private Transform m_camTrans;
 
-	void Start()
+	void Awake()
 	{
 		m_camTrans = gameObject.transform;
 	}

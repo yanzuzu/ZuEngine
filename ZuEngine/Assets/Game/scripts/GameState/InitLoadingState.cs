@@ -9,7 +9,6 @@ using ZuEngine.Service.Network;
 public class InitLoadingState : BaseGameState 
 {
 	long NETWORK_TASK_STATE;
-	long FINISH_TASK_STATE;
 
 	#region IGameState implementation
 	public override void OnInit(GameStateManager stateMgr)
@@ -18,7 +17,6 @@ public class InitLoadingState : BaseGameState
 		base.OnInit (stateMgr);
 
 		NETWORK_TASK_STATE = GetTaskState ();
-		FINISH_TASK_STATE = GetTaskState ();
 
 		AddTask (new InitLoadingNetworkTask(), NETWORK_TASK_STATE);
 		ChangeTaskState(NETWORK_TASK_STATE);
@@ -36,7 +34,7 @@ public class InitLoadingState : BaseGameState
 
 	private EventResult OnNetworkFinish(object eventData)
 	{
-		ChangeState (new MainGameState ());
+		ChangeState (new LobbyState ());
 		return null;
 	}
 }

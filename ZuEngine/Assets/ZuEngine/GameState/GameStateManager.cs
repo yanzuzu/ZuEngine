@@ -66,5 +66,14 @@ namespace ZuEngine.GameState
 				}
 			}
 		}
+
+		public void Destroy()
+		{
+			for (int i = 0; i < m_tasks.Count; i++)
+			{
+				m_tasks [i].Task.Destroy ();
+			}
+			m_tasks.Clear ();
+		}
 	}
 }

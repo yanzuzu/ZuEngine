@@ -13,12 +13,7 @@ public class MainGameInitResTask : BaseTask
 		GameObject sceneObj = GameObject.Instantiate( ResourceService.Instance.Load("Scene/Scene1") ) as GameObject;
 		MainGameService.Instance.Scene = sceneObj;
 		// Load UI
-		GameObject uiRoot = GameObject.Find("UI");
-		GameObject uiCamera = GameObject.Find("UICamera");
-
-		GameObject controlUI = GameObject.Instantiate( ResourceService.Instance.Load("UI/ControllerUI") ) as GameObject;
-		controlUI.transform.SetParent (uiRoot.transform, false);
-		controlUI.GetComponent<Canvas> ().worldCamera = uiCamera.GetComponent<Camera>();
+		UiService.Instance.LoadUI<ControllerView>("UI/ControllerUI");
 		// load camera
 		GameObject cameraObj = GameObject.Instantiate( ResourceService.Instance.Load("Camera/VehicleCamera") ) as GameObject;
 		MainGameService.Instance.Camera = cameraObj.GetComponent<VehicleCamera> ();
@@ -43,6 +38,25 @@ public class MainGameInitResTask : BaseTask
 	public override void Update (float deltaTime)
 	{
 		
+	}
+
+	public override void Destroy ()
+	{
+		GameObject.Destroy (MainGameService.Instance.Scene);
+		MainGameService.Instance.Scene = null;
+
+		GameObject.Destroy (MainGameService.Instance.Camera.gameObject);
+		MainGameService.Instance.Camera = null;
+
+		for (int i = 0; i < MainGameService.Instance.Vehicles.Count; i++)
+		{
+			GameObject.Destroy (MainGameService.Instance.Vehicles[i].gameObject);
+		}
+		MainGameService.Instance.Vehicles.Clear ();
+		MainGameService.Instance.Vehicles = null;
+
+		GameObject.Destroy (MainGameService.Instance.Ball .gameObject);
+		MainGameService.Instance.Ball = null;
 	}
 	#endregion
 }

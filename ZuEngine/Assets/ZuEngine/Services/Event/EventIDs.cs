@@ -20,6 +20,8 @@ namespace ZuEngine.Service
 		UI_CONTROLLER_JUMP_CLICK,
 		UI_CONTROLLER_SHOOT,
 
+		UI_LOBBY_START_CLICK,
+
 		ON_GOAL,
 	}
 }

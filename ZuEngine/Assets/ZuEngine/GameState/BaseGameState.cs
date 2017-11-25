@@ -41,6 +41,7 @@ namespace ZuEngine.GameState
 
 		public virtual void OnDestroy ()
 		{
+			m_stateMgr.Destroy ();
 		}
 
 		#endregion

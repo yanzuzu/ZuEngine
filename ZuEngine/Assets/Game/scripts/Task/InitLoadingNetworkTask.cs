@@ -39,5 +39,8 @@ public class InitLoadingNetworkTask : BaseTask
 	public override void Update (float deltaTime)
 	{
 	}
+	public override void Destroy ()
+	{
+	}
 	#endregion
 }
