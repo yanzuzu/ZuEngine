@@ -16,6 +16,19 @@ namespace ZuEngine.Service.Network
 
 			PhotonNetwork.ConnectUsingSettings (GAME_VERSION);
 		}
+
+		public List<RoomData> GetRoomList()
+		{
+			List<RoomData> result = new List<RoomData> ();
+			RoomInfo [] rooms =  PhotonNetwork.GetRoomList ();
+			for (int i = 0; i < rooms.Length; i++)
+			{
+				RoomData data = new RoomData ();
+				data.Name = rooms [i].Name;
+				result.Add (data);
+			}
+			return result;
+		}
 		#endregion
 
 		public void OnConnectedToMaster()

@@ -7,5 +7,6 @@ namespace ZuEngine.Service.Network
 	public interface INetwork 
 	{
 		void Init(System.Action finishCb);
+		List<RoomData> GetRoomList();
 	}
 }

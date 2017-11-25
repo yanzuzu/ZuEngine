@@ -33,5 +33,10 @@ namespace ZuEngine.Service.Network
 			m_isConnected = true;
 			return null;
 		}
+
+		public List<RoomData> GetRoomList()
+		{
+			return m_networkObj.GetRoomList ();
+		}
 	}
 }
