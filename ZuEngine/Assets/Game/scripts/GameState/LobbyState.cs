@@ -32,7 +32,13 @@ public class LobbyState : BaseGameState
 
 	private EventResult OnStartBtnClick(object eventData)
 	{
-		ChangeState (new MainGameState ());
+		MatchMakingService.Instance.JoinRoom (OnJoinRoomFinish);
 		return null;
+	}
+
+	private void OnJoinRoomFinish(bool isOK)
+	{
+		ZuLog.Log ("join Room isOK = " + isOK);
+		ChangeState (new MainGameState ());
 	}
 }

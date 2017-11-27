@@ -6,5 +6,7 @@ namespace ZuEngine.Service.Network
 	public class RoomData
 	{
 		public string Name;
+		public int PlayerCount;
+		public byte MaxPlayerCount;
 	}
 }

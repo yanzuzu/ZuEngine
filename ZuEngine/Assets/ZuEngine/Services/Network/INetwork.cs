@@ -8,5 +8,7 @@ namespace ZuEngine.Service.Network
 	{
 		void Init(System.Action finishCb);
 		List<RoomData> GetRoomList();
+		bool CreateRoom (string roomName, byte maxPlayers);
+		bool JoinRoom(string roomName);
 	}
 }

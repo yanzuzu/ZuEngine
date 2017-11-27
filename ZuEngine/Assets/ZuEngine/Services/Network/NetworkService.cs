@@ -34,9 +34,35 @@ namespace ZuEngine.Service.Network
 			return null;
 		}
 
-		public List<RoomData> GetRoomList()
+		public List<RoomData> GetRoomList(bool onlyAvaliable = true)
 		{
-			return m_networkObj.GetRoomList ();
+			List<RoomData> rooms = m_networkObj.GetRoomList ();
+			if ( !onlyAvaliable )
+			{
+				return rooms;
+			}
+
+			List<RoomData> avaliableRooms = new List<RoomData> ();
+			for (int i = 0; i < rooms.Count; i++)
+			{
+				if ( rooms [i].MaxPlayerCount > rooms [i].PlayerCount )
+				{
+					avaliableRooms.Add (rooms [i]);
+				}
+			}
+			return avaliableRooms;
+		}
+
+		public bool CreateRoom(string roomName, byte maxPlayerCount = 0 )
+		{
+			ZuLog.Log (string.Format("Create Room name:{0}, maxPlayerCount:{1}" ,roomName, maxPlayerCount) );
+			return m_networkObj.CreateRoom (roomName, maxPlayerCount);
+		}
+
+		public bool JoinRoom(string roomName)
+		{
+			ZuLog.Log ("Join Room: " + roomName);
+			return m_networkObj.JoinRoom (roomName);
 		}
 	}
 }
