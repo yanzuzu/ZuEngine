@@ -11,32 +11,62 @@ public class MatchMakingService : BaseService<MatchMakingService>
 
 	private JoinRoomFinish m_joinRoomFinishCb;
 
-	private const byte MAX_PLAYERS = 2;
+	private const byte MAX_PLAYERS = 1;
+
+	public MatchMakingService()
+	{
+		EventService.Instance.RegisterEvent (EventIDs.ON_NETWORK_PLAYER_CONNECT, OnPlayerConnect);
+		EventService.Instance.RegisterEvent (EventIDs.ON_NETWORK_ROOM_CREATED, OnRoomCreated);
+	}
 
 	public void JoinRoom(JoinRoomFinish joinRoomCb)
 	{
 		m_joinRoomFinishCb = joinRoomCb;
 
-		bool isConnectRoom = false;
 		List<RoomData> rooms = NetworkService.Instance.GetRoomList ();
 		if ( rooms.Count == 0 )
 		{
 			// create room
-			isConnectRoom = NetworkService.Instance.CreateRoom(string.Empty,MAX_PLAYERS);
+			NetworkService.Instance.CreateRoom(string.Empty,MAX_PLAYERS);
 		}
 		else
 		{
 			// join the room
 			for (int i = 0; i < rooms.Count; i++)
 			{
-				isConnectRoom = NetworkService.Instance.JoinRoom (rooms [i].Name);
+				NetworkService.Instance.JoinRoom (rooms [i].Name);
 				break;
 			}
 		}
+	}
 
-		if ( m_joinRoomFinishCb != null )
+	private EventResult OnRoomCreated( object data )
+	{
+		CheckRoomFull ();
+		return null;
+	}
+
+	private EventResult OnPlayerConnect( object data )
+	{
+		CheckRoomFull ();
+		return null;
+	}
+
+	private void CheckRoomFull()
+	{
+		if ( PhotonNetwork.room == null )
 		{
-			m_joinRoomFinishCb (isConnectRoom);
+			ZuLog.LogWarning ("the Photon room is null");
+			return;
+		}
+
+		ZuLog.Log (string.Format ("room playerCount: {0}, MaxCount: {1}", PhotonNetwork.room.PlayerCount, PhotonNetwork.room.MaxPlayers));
+		if ( PhotonNetwork.room.PlayerCount >= PhotonNetwork.room.MaxPlayers )
+		{
+			if ( m_joinRoomFinishCb != null )
+			{
+				m_joinRoomFinishCb (true);
+			}
 		}
 	}
 }

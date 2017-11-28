@@ -54,5 +54,17 @@ namespace ZuEngine.Service.Network
 				m_initFinishCb ();
 			}
 		}
+
+		public void OnPhotonPlayerConnected( PhotonPlayer otherPlayer )
+		{
+			ZuLog.Log ("OnPhotonPlayerConnected otherPlayer = " + otherPlayer);
+			EventService.Instance.SendEvent (EventIDs.ON_NETWORK_PLAYER_CONNECT, otherPlayer);
+		}
+
+		public void OnCreatedRoom()
+		{
+			ZuLog.Log ("OnCreatedRoom start");
+			EventService.Instance.SendEvent (EventIDs.ON_NETWORK_ROOM_CREATED);
+		}
 	}
 }
