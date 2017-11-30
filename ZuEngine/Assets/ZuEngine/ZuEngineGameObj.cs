@@ -26,8 +26,11 @@ namespace ZuEngine
 
 		public virtual void Update () 
 		{
-			m_gameStateMgr.Update (Time.deltaTime);
-			EventService.Instance.SendEvent (EventIDs.ON_UPDATE, Time.deltaTime);
+			float deltaTime = Time.deltaTime;
+
+			m_gameStateMgr.Update (deltaTime);
+			TimerService.Instance.OnUpdate (deltaTime);
+			EventService.Instance.SendEvent (EventIDs.ON_UPDATE, deltaTime);
 		}
 
 		private void OnNetworkInitFinish()
