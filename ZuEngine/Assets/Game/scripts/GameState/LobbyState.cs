@@ -39,6 +39,14 @@ public class LobbyState : BaseGameState
 	private void OnJoinRoomFinish(bool isOK)
 	{
 		ZuLog.Log ("join Room isOK = " + isOK);
-		ChangeState (new MainGameState ());
+
+		MatchInitMsg initData = new MatchInitMsg ();
+		initData.BallId = 1;
+		initData.SceneId = 1;
+		initData.Vehicles = new MatchInitMsg.VehicleData[2];
+		initData.Vehicles[0] = MainGameService.Instance.CreateVehicleData (TeamType.Blue, 1, new Vector3 (129, 0.07f, 103), Quaternion.identity);
+		initData.Vehicles[1] = MainGameService.Instance.CreateVehicleData (TeamType.Red, 2, new Vector3 (129, 0.07f, 143),Quaternion.identity);
+
+		ChangeState (new PreloadMainGameState (initData));
 	}
 }

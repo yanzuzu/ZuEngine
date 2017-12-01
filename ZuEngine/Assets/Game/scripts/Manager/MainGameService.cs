@@ -32,4 +32,28 @@ public class MainGameService :  BaseService<MainGameService>
 		get{ return m_scene; }
 		set{ m_scene = value; }
 	}
+
+	private MatchInitMsg m_initDatas = new MatchInitMsg();
+	public MatchInitMsg InitData
+	{
+		get{ return m_initDatas; }
+		set{ m_initDatas = value; }
+	}
+
+	public void CreateMatchIniData(int sceneID, int ballID, MatchInitMsg.VehicleData [] vehicles)
+	{
+		m_initDatas.BallId = ballID;
+		m_initDatas.SceneId = sceneID;
+		m_initDatas.Vehicles = vehicles;
+	}
+
+	public MatchInitMsg.VehicleData CreateVehicleData(TeamType team, int vehicleId, Vector3 startPos, Quaternion startRotate)
+	{
+		MatchInitMsg.VehicleData data = new MatchInitMsg.VehicleData ();
+		data.Team = team;
+		data.Id = vehicleId;
+		data.StartPos = startPos;
+		data.StartRotate = startRotate;
+		return data;
+	}
 }
