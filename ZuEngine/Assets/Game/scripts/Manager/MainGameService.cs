@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.Service;
+using ZuEngine.Service.Network;
+using ZuEngine.Utility;
 
 public class MainGameService :  BaseService<MainGameService>
 {
@@ -47,13 +49,34 @@ public class MainGameService :  BaseService<MainGameService>
 		m_initDatas.Vehicles = vehicles;
 	}
 
-	public MatchInitMsg.VehicleData CreateVehicleData(TeamType team, int vehicleId, Vector3 startPos, Quaternion startRotate)
+	public MatchInitMsg.VehicleData CreateVehicleData(int playerId, TeamType team, int vehicleId, Vector3 startPos, Quaternion startRotate)
 	{
 		MatchInitMsg.VehicleData data = new MatchInitMsg.VehicleData ();
+		data.PlayerId = playerId;
 		data.Team = team;
 		data.Id = vehicleId;
 		data.StartPos = startPos;
 		data.StartRotate = startRotate;
 		return data;
+	}
+
+	public void AddController(GameObject vehicle, int playerId)
+	{
+		ZuLog.Log (string.Format ("AddController playerId = {0}", playerId));
+		if ( playerId == NetworkService.Instance.GetLocalPlayerId () )
+		{
+			if ( NetworkService.Instance.IsHost () )
+			{
+				vehicle.AddComponent<HostLocalPlayer> ();
+			}
+			else
+			{
+				// TODO: not host local Player
+			}
+		}
+		else
+		{
+			// TODO: not local Player
+		}
 	}
 }

@@ -64,5 +64,15 @@ namespace ZuEngine.Service.Network
 			ZuLog.Log ("Join Room: " + roomName);
 			return m_networkObj.JoinRoom (roomName);
 		}
+
+		public int GetLocalPlayerId()
+		{
+			return m_networkObj.GetLocalPlayerId ();
+		}
+
+		public bool IsHost()
+		{
+			return m_networkObj.IsHost ();
+		}
 	}
 }

@@ -38,6 +38,7 @@ public class MainGameInitResTask : BaseTask
 			GameObject vehicle = GameObject.Instantiate( ResourceService.Instance.Load( string.Format("Vehicle/Vehicle_{0}",m_initData.Vehicles[i].Id)) ) as GameObject;
 			vehicle.transform.position = m_initData.Vehicles [i].StartPos;
 			vehicle.transform.rotation = m_initData.Vehicles [i].StartRotate;
+			MainGameService.Instance.AddController (vehicle, m_initData.Vehicles [i].PlayerId);
 			vehicles.Add (vehicle.GetComponent<Vehicle> ());
 		}
 		MainGameService.Instance.Vehicles = vehicles;

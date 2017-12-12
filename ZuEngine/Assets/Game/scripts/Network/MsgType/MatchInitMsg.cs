@@ -6,6 +6,7 @@ public class MatchInitMsg
 {
 	public class VehicleData
 	{
+		public int PlayerId;
 		public TeamType Team;
 		public int Id = 0;
 		public Vector3 StartPos;

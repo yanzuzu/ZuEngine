@@ -10,5 +10,7 @@ namespace ZuEngine.Service.Network
 		List<RoomData> GetRoomList();
 		bool CreateRoom (string roomName, byte maxPlayers);
 		bool JoinRoom(string roomName);
+		int GetLocalPlayerId ();
+		bool IsHost();
 	}
 }

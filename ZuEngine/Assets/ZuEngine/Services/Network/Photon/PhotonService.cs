@@ -44,6 +44,16 @@ namespace ZuEngine.Service.Network
 			return PhotonNetwork.JoinRoom (roomName);
 		}
 
+		public int GetLocalPlayerId()
+		{
+			return PhotonNetwork.player.ID;
+		}
+
+		public bool IsHost()
+		{
+			return PhotonNetwork.isMasterClient;
+		}
+
 		#endregion
 
 		public void OnConnectedToMaster()

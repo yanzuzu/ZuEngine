@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZuEngine.Service;
 
-public class VehicleControl : MonoBehaviour 
+public class HostLocalPlayer : MonoBehaviour 
 {
 	private Vehicle m_vehicle;
 

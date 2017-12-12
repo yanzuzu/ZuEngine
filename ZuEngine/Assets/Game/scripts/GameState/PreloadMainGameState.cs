@@ -4,6 +4,7 @@ using UnityEngine;
 using ZuEngine.GameState;
 using ZuEngine.Utility;
 using ZuEngine.Service;
+using ZuEngine.Service.Network;
 
 public class PreloadMainGameState : BaseGameState 
 {
