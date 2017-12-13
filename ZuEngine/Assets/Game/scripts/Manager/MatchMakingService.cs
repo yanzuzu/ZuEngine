@@ -29,19 +29,14 @@ public class MatchMakingService : BaseService<MatchMakingService>
 		m_joinRoomId = TimerService.Instance.Schedule (1, OnJoinRoomTimeOut, null, true);
 
 		List<RoomData> rooms = NetworkService.Instance.GetRoomList ();
-		if ( rooms.Count == 0 )
+		if ( rooms.Count <= 0 )
 		{
 			// create room
 			NetworkService.Instance.CreateRoom(string.Empty,MAX_PLAYERS);
 		}
 		else
 		{
-			// join the room
-			for (int i = 0; i < rooms.Count; i++)
-			{
-				NetworkService.Instance.JoinRoom (rooms [i].Name);
-				break;
-			}
+			NetworkService.Instance.JoinRoom (rooms [0].Name);
 		}
 	}
 
