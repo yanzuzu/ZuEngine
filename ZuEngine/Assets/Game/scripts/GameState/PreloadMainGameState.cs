@@ -36,7 +36,7 @@ public class PreloadMainGameState : BaseGameState
 
 	public override void OnDestroy ()
 	{
-
+		base.OnDestroy ();
 	}
 	#endregion
 

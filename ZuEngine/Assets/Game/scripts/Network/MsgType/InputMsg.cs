@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class InputMsg  
 {
-	public class PlayerInputData
-	{
-		public int PlayerId;
-		public VehicleControlData Input;
-	}
-
-	PlayerInputData [] playerInputs;
+	public int PlayerId;
+	public VehicleControlData Input;
 }

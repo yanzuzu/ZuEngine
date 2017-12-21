@@ -25,5 +25,7 @@ namespace ZuEngine.Service
 		UI_LOBBY_START_CLICK,
 
 		ON_GOAL,
+
+		MSG_INPUT_DATA,
 	}
 }

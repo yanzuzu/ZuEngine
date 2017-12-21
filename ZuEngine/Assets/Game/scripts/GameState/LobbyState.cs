@@ -45,7 +45,7 @@ public class LobbyState : BaseGameState
 		initData.SceneId = 1;
 		initData.Vehicles = new MatchInitMsg.VehicleData[2];
 		initData.Vehicles[0] = MainGameService.Instance.CreateVehicleData (1,TeamType.Blue, 1, new Vector3 (129, 0.07f, 103), Quaternion.identity);
-		initData.Vehicles[1] = MainGameService.Instance.CreateVehicleData (2,TeamType.Red, 2, new Vector3 (129, 0.07f, 143),Quaternion.identity);
+		initData.Vehicles[1] = MainGameService.Instance.CreateVehicleData (2,TeamType.Red, 2, new Vector3 (129, 0.07f, 143),Quaternion.Euler(0,180,0));
 
 		ChangeState (new PreloadMainGameState (initData));
 	}

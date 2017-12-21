@@ -76,7 +76,8 @@ public class MainGameService :  BaseService<MainGameService>
 		}
 		else
 		{
-			// TODO: not local Player
+			HostOtherPlayer otherPlayer = vehicle.AddComponent<HostOtherPlayer> ();
+			otherPlayer.PlayerId = playerId;
 		}
 	}
 }
